@@ -753,10 +753,27 @@
 
   .deck-card:active { transform: scale(0.97); }
 
-  .deck-card img {
+  .deck-card-preview {
     width: 100%;
-    height: 160px;
-    object-fit: cover;
+    min-height: 120px;
+    padding: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-content: flex-start;
+  }
+
+  .deck-word-chip {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .deck-word-chip.chip-learned {
+    opacity: 0.5;
+    text-decoration: line-through;
   }
 
   .deck-info {
@@ -1909,12 +1926,19 @@ async function renderLibrary() {
 
   decks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
+  const chipColors = ['#ec4899','#fbbf24','#60a5fa','#a78bfa','#4ade80','#fb923c','#5eead4','#f43f5e'];
+
   grid.innerHTML = decks.map(deck => {
     const learnedCount = deck.cards.filter(c => learned.has(c.word)).length;
+    const wordChips = deck.cards.map((c, i) => {
+      const bg = chipColors[i % chipColors.length];
+      const cls = learned.has(c.word) ? 'deck-word-chip chip-learned' : 'deck-word-chip';
+      return `<span class="${cls}" style="background:${bg}">${escapeHtml(c.word)}</span>`;
+    }).join('');
     return `
       <div class="deck-card" data-deck-id="${deck.id}">
         <button class="delete-deck-btn" data-deck-id="${deck.id}">&times;</button>
-        <img src="${deck.imageDataUrl}" alt="${escapeHtml(deck.name)}">
+        <div class="deck-card-preview">${wordChips}</div>
         <div class="deck-info">
           <div class="deck-name">${escapeHtml(deck.name)}</div>
           <div class="deck-meta">

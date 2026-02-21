@@ -396,6 +396,14 @@
     padding: 2px 6px;
     border-radius: 6px;
     font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sight-word.excluded {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.3);
+    text-decoration: line-through;
   }
 
   .learned-word {
@@ -404,6 +412,14 @@
     padding: 2px 6px;
     border-radius: 6px;
     font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .learned-word.excluded {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.3);
+    text-decoration: line-through;
   }
 
   .make-flashcards-btn {
@@ -533,9 +549,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    z-index: 5;
+    pointer-events: auto;
   }
 
   .card-speak-btn:active { background: rgba(255,255,255,0.2); }
+  .card-speak-btn.loading { opacity: 0.5; }
 
   .card-back-sentence {
     padding: 24px 20px;
@@ -1034,12 +1054,12 @@ function cleanWord(w) {
 // ===== AUDIO =====
 let audioCtx = null;
 
-function ensureAudioContext() {
+async function ensureAudioContext() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
   if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
+    await audioCtx.resume();
   }
 }
 
@@ -1188,7 +1208,7 @@ async function processPage() {
   if (isProcessing) return;
   isProcessing = true;
 
-  ensureAudioContext();
+  await ensureAudioContext();
   flashEffect();
   showStatus('Capturing...');
 
@@ -1254,24 +1274,67 @@ function showTextReview(imageDataUrl, sentences, cards) {
   $('#text-review').classList.add('visible');
 }
 
+let excludedWords = new Set();
+
 function renderSentencesHTML(sentences) {
   const learned = getLearnedWords();
   return sentences.map(sentence => {
     const words = sentence.match(/\S+/g) || [];
     return '<p>' + words.map(word => {
       const clean = cleanWord(word);
-      if (learned.has(clean)) {
-        return `<span class="learned-word">${escapeHtml(word)}</span>`;
+      const isExcluded = excludedWords.has(clean);
+      const exClass = isExcluded ? ' excluded' : '';
+      if (learned.has(clean) && DOLCH_SET.has(clean)) {
+        return `<span class="learned-word${exClass}" data-clean="${clean}">${escapeHtml(word)}</span>`;
       } else if (DOLCH_SET.has(clean)) {
-        return `<span class="sight-word">${escapeHtml(word)}</span>`;
+        return `<span class="sight-word${exClass}" data-clean="${clean}">${escapeHtml(word)}</span>`;
       }
       return escapeHtml(word);
     }).join(' ') + '</p>';
   }).join('');
 }
 
+// Toggle word inclusion on tap in Text Review
+$('#review-sentences').addEventListener('click', (e) => {
+  const wordEl = e.target.closest('.sight-word, .learned-word');
+  if (!wordEl) return;
+  const clean = wordEl.dataset.clean;
+  if (!clean) return;
+
+  if (excludedWords.has(clean)) {
+    excludedWords.delete(clean);
+  } else {
+    excludedWords.add(clean);
+  }
+
+  // Toggle visual on ALL instances of this word
+  document.querySelectorAll(`#review-sentences [data-clean="${clean}"]`).forEach(el => {
+    el.classList.toggle('excluded', excludedWords.has(clean));
+  });
+
+  // Update pending cards and stats
+  pendingCards = pendingCards.map(c => ({ ...c, _excluded: excludedWords.has(c.word) }));
+  const activeCards = pendingCards.filter(c => !excludedWords.has(c.word));
+  const newWords = activeCards.filter(c => !c.learned).length;
+  const statsEl = $('#review-stats');
+
+  if (activeCards.length === 0) {
+    statsEl.textContent = 'No sight words selected';
+    statsEl.style.background = 'rgba(255,255,255,0.1)';
+    $('#make-flashcards-btn').style.display = 'none';
+  } else {
+    const statsText = newWords > 0
+      ? `${activeCards.length} sight word${activeCards.length !== 1 ? 's' : ''} selected (${newWords} new)`
+      : `${activeCards.length} sight word${activeCards.length !== 1 ? 's' : ''} selected (all learned)`;
+    statsEl.textContent = statsText;
+    statsEl.style.background = '';
+    $('#make-flashcards-btn').style.display = '';
+  }
+});
+
 function closeTextReview() {
   $('#text-review').classList.remove('visible');
+  excludedWords.clear();
 }
 
 // ===== FLASHCARD VIEW =====
@@ -1378,42 +1441,58 @@ function markAsKnown() {
 }
 
 // ===== TTS =====
+const audioCache = new Map();
+
 async function speakWord(word) {
   stopCurrentAudio();
-  ensureAudioContext();
+  await ensureAudioContext();
+
+  const speakBtn = $('#card-speak');
+  if (speakBtn) speakBtn.classList.add('loading');
 
   try {
-    const voice = localStorage.getItem('voice') || 'fable';
-    const speed = 0.7;
+    let audioBuffer;
 
-    const response = await fetch('https://api.openai.com/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'tts-1',
-        input: word,
-        voice: voice,
-        speed: speed,
-        response_format: 'mp3'
-      })
-    });
+    // Check cache first
+    const cacheKey = word.toLowerCase();
+    if (audioCache.has(cacheKey)) {
+      audioBuffer = audioCache.get(cacheKey);
+    } else {
+      const voice = localStorage.getItem('voice') || 'fable';
+      const speed = 0.7;
 
-    if (!response.ok) throw new Error('TTS error');
+      const response = await fetch('https://api.openai.com/v1/audio/speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'tts-1',
+          input: word,
+          voice: voice,
+          speed: speed,
+          response_format: 'mp3'
+        })
+      });
 
-    const arrayBuffer = await response.arrayBuffer();
-    audioCtx.decodeAudioData(arrayBuffer.slice(0), (buffer) => {
-      const source = audioCtx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(audioCtx.destination);
-      currentAudioSource = source;
-      source.onended = () => { currentAudioSource = null; };
-      source.start(0);
-    });
+      if (!response.ok) throw new Error('TTS error');
+
+      const arrayBuffer = await response.arrayBuffer();
+      audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+      audioCache.set(cacheKey, audioBuffer);
+    }
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioCtx.destination);
+    currentAudioSource = source;
+    source.onended = () => { currentAudioSource = null; };
+    source.start(0);
   } catch(e) {
     console.error('TTS failed:', e);
+  } finally {
+    if (speakBtn) speakBtn.classList.remove('loading');
   }
 }
 
@@ -1498,7 +1577,8 @@ async function deleteDeckFromDB(deckId) {
 
 // ===== CREATE DECK =====
 async function createFlashcardDeck() {
-  if (pendingCards.length === 0) return;
+  const activeCards = pendingCards.filter(c => !excludedWords.has(c.word));
+  if (activeCards.length === 0) return;
 
   const firstSentence = pendingSentences[0] || 'Untitled';
   const name = firstSentence.length > 40
@@ -1511,7 +1591,7 @@ async function createFlashcardDeck() {
     createdAt: new Date().toISOString(),
     imageDataUrl: pendingImageDataUrl,
     sentences: pendingSentences,
-    cards: pendingCards.map(c => ({ ...c }))
+    cards: activeCards.map(c => ({ word: c.word, sentence: c.sentence, level: c.level, learned: c.learned }))
   };
 
   try {
@@ -1706,8 +1786,8 @@ function celebrate() {
 }
 
 // ===== EVENT LISTENERS =====
-$('#capture-btn').addEventListener('click', () => {
-  ensureAudioContext();
+$('#capture-btn').addEventListener('click', async () => {
+  await ensureAudioContext();
   processPage();
 });
 
@@ -1750,10 +1830,10 @@ $('#save-settings').addEventListener('click', () => {
 });
 
 // API key overlay
-$('#submit-api-key').addEventListener('click', () => {
+$('#submit-api-key').addEventListener('click', async () => {
   const key = $('#initial-api-key').value.trim();
   if (!key) return;
-  ensureAudioContext();
+  await ensureAudioContext();
   apiKey = key;
   localStorage.setItem('openai_api_key', apiKey);
   $('#api-key-overlay').classList.add('hidden');

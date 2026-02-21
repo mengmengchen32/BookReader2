@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Flashcards">
 <meta name="theme-color" content="#1a1a2e">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🃏</text></svg>">
+<link rel="apple-touch-icon" href="icon-180.png">
 <title>佑佑的认字卡</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap');
@@ -685,24 +685,24 @@
 
   /* Swipe animation */
   .flashcard.swipe-left {
-    animation: swipeLeft 0.35s ease-out;
+    animation: swipeLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .flashcard.swipe-right {
-    animation: swipeRight 0.35s ease-out;
+    animation: swipeRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   @keyframes swipeLeft {
-    0% { transform: translateX(0) rotate(0deg); opacity: 1; }
-    40% { transform: translateX(-60%) rotate(-8deg); opacity: 0.3; }
-    41% { transform: translateX(60%) rotate(8deg); opacity: 0; }
-    100% { transform: translateX(0) rotate(0deg); opacity: 1; }
+    0% { transform: translateX(0) rotate(0deg) scale(1); opacity: 1; }
+    35% { transform: translateX(-120%) rotate(-15deg) scale(0.85); opacity: 0; }
+    36% { transform: translateX(100%) rotate(10deg) scale(0.85); opacity: 0; }
+    100% { transform: translateX(0) rotate(0deg) scale(1); opacity: 1; }
   }
 
   @keyframes swipeRight {
-    0% { transform: translateX(0) rotate(0deg); opacity: 1; }
-    40% { transform: translateX(60%) rotate(8deg); opacity: 0.3; }
-    41% { transform: translateX(-60%) rotate(-8deg); opacity: 0; }
-    100% { transform: translateX(0) rotate(0deg); opacity: 1; }
+    0% { transform: translateX(0) rotate(0deg) scale(1); opacity: 1; }
+    35% { transform: translateX(120%) rotate(15deg) scale(0.85); opacity: 0; }
+    36% { transform: translateX(-100%) rotate(-10deg) scale(0.85); opacity: 0; }
+    100% { transform: translateX(0) rotate(0deg) scale(1); opacity: 1; }
   }
 
   /* ===== DECK LIBRARY ===== */
@@ -1489,18 +1489,21 @@ function renderFlashcard() {
   // Unflip card
   $('#flashcard').classList.remove('flipped');
 
-  // Front — color by level
-  const cardColors = {
-    'Pre-Primer': { bg: 'linear-gradient(160deg, #4a1942, #2e1f3d)', border: 'rgba(244,114,182,0.3)' },
-    'Primer': { bg: 'linear-gradient(160deg, #3d3015, #2e1f3d)', border: 'rgba(251,191,36,0.3)' },
-    'First Grade': { bg: 'linear-gradient(160deg, #1a2d4a, #2e1f3d)', border: 'rgba(96,165,250,0.3)' },
-    'Second Grade': { bg: 'linear-gradient(160deg, #2d1f4a, #2e1f3d)', border: 'rgba(167,139,250,0.3)' },
-    'Third Grade': { bg: 'linear-gradient(160deg, #1a3a2a, #2e1f3d)', border: 'rgba(74,222,128,0.3)' },
-  };
-  const colors = cardColors[card.level] || cardColors['Pre-Primer'];
+  // Front — unique color per card using index-based hue rotation
+  const palette = [
+    { h1: '#4a1942', h2: '#2e1f3d', border: 'rgba(244,114,182,0.3)' },  // pink
+    { h1: '#3d3015', h2: '#2e1f3d', border: 'rgba(251,191,36,0.3)' },  // gold
+    { h1: '#1a2d4a', h2: '#2e1f3d', border: 'rgba(96,165,250,0.3)' },  // blue
+    { h1: '#2d1f4a', h2: '#2e1f3d', border: 'rgba(167,139,250,0.3)' }, // purple
+    { h1: '#1a3a2a', h2: '#2e1f3d', border: 'rgba(74,222,128,0.3)' },  // green
+    { h1: '#4a2a1a', h2: '#2e1f3d', border: 'rgba(251,146,60,0.3)' },  // orange
+    { h1: '#1a3a3a', h2: '#2e1f3d', border: 'rgba(94,234,212,0.3)' },  // teal
+    { h1: '#3a1a2a', h2: '#2e1f3d', border: 'rgba(244,63,94,0.3)' },   // rose
+  ];
+  const p = palette[cardIndex % palette.length];
   const front = document.querySelector('.flashcard-front');
-  front.style.setProperty('--card-bg', colors.bg);
-  front.style.setProperty('--card-border', colors.border);
+  front.style.setProperty('--card-bg', `linear-gradient(160deg, ${p.h1}, ${p.h2})`);
+  front.style.setProperty('--card-border', p.border);
 
   $('#card-word').textContent = card.word;
   $('#card-level').textContent = card.level;
@@ -1554,8 +1557,8 @@ function nextCard() {
     fc.removeEventListener('animationend', handler);
   });
   cardIndex++;
-  // Delay render to mid-animation (card is invisible at 41%)
-  setTimeout(() => renderFlashcard(), 145);
+  // Render at the invisible midpoint (35% of 500ms)
+  setTimeout(() => renderFlashcard(), 180);
 }
 
 function prevCard() {
@@ -1567,7 +1570,7 @@ function prevCard() {
     fc.removeEventListener('animationend', handler);
   });
   cardIndex--;
-  setTimeout(() => renderFlashcard(), 145);
+  setTimeout(() => renderFlashcard(), 180);
 }
 
 function markAsKnown() {

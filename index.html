@@ -38,16 +38,84 @@
     touch-action: manipulation;
   }
 
-  /* ===== CAMERA ===== */
-  #camera-container {
+  /* ===== HOME (LIBRARY) ===== */
+  #home {
     position: relative;
     width: 100%;
     height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
+
+  .home-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 10px;
+    background: rgba(30,16,38,0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  .home-header-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .home-header-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .camera-fab {
+    position: fixed;
+    bottom: 32px;
+    right: 24px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--pink-hot), var(--purple));
+    font-size: 32px;
+    cursor: pointer;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(236,72,153,0.4);
+    transition: transform 0.15s;
+  }
+
+  .camera-fab:active { transform: scale(0.9); }
+
+  /* ===== CAMERA ===== */
+  #camera-container {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 50;
+    display: none;
+  }
+
+  #camera-container.visible { display: block; }
 
   #video {
     width: 100%;
-    height: 100%;
+    height: 100dvh;
     object-fit: cover;
   }
 
@@ -130,52 +198,17 @@
     transform: translateX(-50%) scale(0.9);
   }
 
-  #library-btn {
-    position: absolute;
-    bottom: 52px;
-    right: 24px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
-    background: var(--bg-card);
-    font-size: 28px;
-    cursor: pointer;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-  }
-
-  #progress-btn {
-    position: absolute;
-    bottom: 52px;
-    left: 24px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
-    background: var(--bg-card);
-    font-size: 28px;
-    cursor: pointer;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-  }
-
-  #settings-btn {
+  #close-camera {
     position: absolute;
     top: 16px;
-    right: 16px;
-    width: 40px;
-    height: 40px;
+    left: 16px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: none;
-    background: rgba(255,255,255,0.15);
-    font-size: 20px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    font-size: 22px;
     cursor: pointer;
     z-index: 11;
     display: flex;
@@ -237,23 +270,6 @@
   }
 
   #flash.active { opacity: 0.8; }
-
-  .deck-count {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    background: var(--pink-hot);
-    color: white;
-    font-size: 12px;
-    font-weight: 800;
-    min-width: 22px;
-    height: 22px;
-    border-radius: 11px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 6px;
-  }
 
   /* ===== SCREEN OVERLAYS ===== */
   .screen {
@@ -916,26 +932,37 @@
 </head>
 <body>
 
-<!-- ===== CAMERA SCREEN ===== -->
-<div id="camera-container">
-  <video id="video" autoplay playsinline></video>
-  <canvas id="canvas"></canvas>
-  <div id="flash"></div>
-  <div id="camera-frame"></div>
-
-  <div id="top-bar">
+<!-- ===== HOME SCREEN (Library) ===== -->
+<div id="home">
+  <div class="home-header">
     <div id="mascot">🃏</div>
     <div id="app-title">
       <span class="cn">佑佑的认字卡</span>
       <span class="en">Hunter's Flashcards</span>
     </div>
+    <div class="home-header-actions">
+      <button class="home-header-btn" id="progress-btn">⭐</button>
+      <button class="home-header-btn" id="settings-btn">⚙️</button>
+    </div>
   </div>
+  <div id="study-all-bar" class="study-all-bar" style="display:none">
+    <button id="study-all-btn" class="study-all-btn">📖 Study All Words</button>
+    <span id="study-all-count" class="study-all-count"></span>
+  </div>
+  <div id="library-grid" class="library-grid"></div>
+</div>
 
-  <button id="settings-btn">⚙️</button>
+<button id="camera-fab" class="camera-fab">📷</button>
+
+<!-- ===== CAMERA OVERLAY ===== -->
+<div id="camera-container">
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas"></canvas>
+  <div id="flash"></div>
+  <div id="camera-frame"></div>
+  <button id="close-camera">✕</button>
   <div id="hint">Point at a book page, then tap!</div>
-  <button id="progress-btn">⭐</button>
   <button id="capture-btn">📸</button>
-  <button id="library-btn">📚</button>
   <div id="status"></div>
 </div>
 
@@ -991,19 +1018,6 @@
     <button id="know-btn" class="know-btn">I Know This! ✓</button>
   </div>
   <div id="card-dots" class="card-dots"></div>
-</div>
-
-<!-- ===== DECK LIBRARY ===== -->
-<div id="library-panel" class="screen">
-  <div class="screen-header">
-    <button class="back-btn" id="close-library">✕</button>
-    <span class="screen-title">My Flashcard Decks</span>
-  </div>
-  <div id="study-all-bar" class="study-all-bar" style="display:none">
-    <button id="study-all-btn" class="study-all-btn">📖 Study All Words</button>
-    <span id="study-all-count" class="study-all-count"></span>
-  </div>
-  <div id="library-grid" class="library-grid"></div>
 </div>
 
 <!-- ===== PROGRESS PANEL ===== -->
@@ -1146,6 +1160,24 @@ async function startCamera() {
   } catch (err) {
     showStatus('Camera access denied. Please allow camera and reload.');
   }
+}
+
+function stopCamera() {
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+  }
+}
+
+async function openCamera() {
+  await ensureAudioContext();
+  await startCamera();
+  $('#camera-container').classList.add('visible');
+}
+
+function closeCamera() {
+  stopCamera();
+  $('#camera-container').classList.remove('visible');
 }
 
 function captureFrame() {
@@ -1733,24 +1765,16 @@ async function createFlashcardDeck() {
 
   try {
     await saveDeckToDB(deck);
-    updateLibraryBadge();
     closeTextReview();
+    closeCamera();
+    await renderLibrary();
     openFlashcardView(deck);
   } catch (err) {
     console.error('Failed to save deck:', err);
   }
 }
 
-// ===== DECK LIBRARY =====
-async function openLibrary() {
-  await renderLibrary();
-  $('#library-panel').classList.add('visible');
-}
-
-function closeLibrary() {
-  $('#library-panel').classList.remove('visible');
-}
-
+// ===== DECK LIBRARY (HOME) =====
 async function renderLibrary() {
   let decks = [];
   try { decks = await loadDecksFromDB(); } catch(e) { console.error(e); }
@@ -1835,7 +1859,6 @@ async function studyAllWords() {
     _isComposite: true
   };
 
-  closeLibrary();
   openFlashcardView(combinedDeck);
 }
 
@@ -1847,7 +1870,6 @@ $('#library-grid').addEventListener('click', async (e) => {
     if (confirm('Delete this deck?')) {
       await deleteDeckFromDB(deckId);
       await renderLibrary();
-      updateLibraryBadge();
     }
     return;
   }
@@ -1864,7 +1886,6 @@ $('#library-grid').addEventListener('click', async (e) => {
         if (deck) {
           const learned = getLearnedWords();
           deck.cards.forEach(c => { c.learned = learned.has(c.word); });
-          closeLibrary();
           openFlashcardView(deck);
         }
       };
@@ -1873,26 +1894,6 @@ $('#library-grid').addEventListener('click', async (e) => {
     }
   }
 });
-
-async function updateLibraryBadge() {
-  try {
-    const decks = await loadDecksFromDB();
-    const btn = $('#library-btn');
-    const existing = btn.querySelector('.deck-count');
-    if (decks.length > 0) {
-      if (existing) {
-        existing.textContent = decks.length;
-      } else {
-        const span = document.createElement('span');
-        span.className = 'deck-count';
-        span.textContent = decks.length;
-        btn.appendChild(span);
-      }
-    } else if (existing) {
-      existing.remove();
-    }
-  } catch(e) {}
-}
 
 // ===== PROGRESS PANEL =====
 function openProgress() {
@@ -1976,18 +1977,17 @@ function celebrate() {
 }
 
 // ===== EVENT LISTENERS =====
-$('#capture-btn').addEventListener('click', async () => {
-  await ensureAudioContext();
-  processPage();
-});
-
-$('#library-btn').addEventListener('click', openLibrary);
-$('#close-library').addEventListener('click', closeLibrary);
+$('#camera-fab').addEventListener('click', openCamera);
+$('#close-camera').addEventListener('click', closeCamera);
+$('#capture-btn').addEventListener('click', processPage);
 $('#progress-btn').addEventListener('click', openProgress);
 $('#close-progress').addEventListener('click', closeProgress);
 $('#close-review').addEventListener('click', closeTextReview);
 $('#make-flashcards-btn').addEventListener('click', createFlashcardDeck);
-$('#close-flashcards').addEventListener('click', closeFlashcardView);
+$('#close-flashcards').addEventListener('click', () => {
+  closeFlashcardView();
+  renderLibrary();
+});
 $('#study-all-btn').addEventListener('click', studyAllWords);
 
 $('#card-speak').addEventListener('click', (e) => {
@@ -2033,7 +2033,6 @@ $('#submit-api-key').addEventListener('click', async () => {
   apiKey = key;
   localStorage.setItem('openai_api_key', apiKey);
   $('#api-key-overlay').classList.add('hidden');
-  startCamera();
 });
 
 $('#initial-api-key').addEventListener('keydown', (e) => {
@@ -2041,12 +2040,11 @@ $('#initial-api-key').addEventListener('keydown', (e) => {
 });
 
 // ===== INIT =====
-function init() {
+async function init() {
   if (apiKey) {
     $('#api-key-overlay').classList.add('hidden');
-    startCamera();
   }
-  updateLibraryBadge();
+  await renderLibrary();
 }
 
 init();

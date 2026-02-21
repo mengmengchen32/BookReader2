@@ -1,40 +1,43 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#ec4899"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
+      <stop offset="0%" stop-color="#e8d5c4"/>
+      <stop offset="100%" stop-color="#dcc0a8"/>
     </linearGradient>
     <linearGradient id="card-fill" x1="148" y1="80" x2="364" y2="390" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#f3f0ff"/>
+      <stop offset="0%" stop-color="#f5ece4"/>
+      <stop offset="100%" stop-color="#ede2d6"/>
     </linearGradient>
     <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="4" dy="6" stdDeviation="8" flood-color="#000" flood-opacity="0.2"/>
+      <feDropShadow dx="3" dy="5" stdDeviation="8" flood-color="#4a3728" flood-opacity="0.12"/>
     </filter>
   </defs>
   <!-- Background -->
   <rect width="512" height="512" rx="108" fill="url(#bg)"/>
-  <!-- Sparkle dots -->
-  <circle cx="100" cy="100" r="12" fill="#fbbf24" opacity="0.7"/>
-  <circle cx="80" cy="130" r="6" fill="#fbbf24" opacity="0.4"/>
-  <circle cx="420" cy="400" r="10" fill="#fbbf24" opacity="0.6"/>
-  <circle cx="440" cy="370" r="5" fill="#fbbf24" opacity="0.35"/>
+  <!-- Geometric accents (Monument Valley style) -->
+  <rect x="60" y="380" width="40" height="80" rx="4" fill="#c97558" opacity="0.3"/>
+  <rect x="80" y="400" width="40" height="60" rx="4" fill="#9a8bc2" opacity="0.25"/>
+  <rect x="390" y="60" width="35" height="70" rx="4" fill="#7ba8b8" opacity="0.3"/>
+  <rect x="415" y="80" width="35" height="50" rx="4" fill="#d4a950" opacity="0.25"/>
+  <!-- Small triangles -->
+  <polygon points="110,90 125,60 140,90" fill="#c97558" opacity="0.2"/>
+  <polygon points="380,420 395,395 410,420" fill="#9a8bc2" opacity="0.2"/>
   <!-- Back card (tilted) -->
   <g transform="rotate(10, 256, 256)" filter="url(#shadow)">
-    <rect x="152" y="98" width="208" height="284" rx="18" fill="rgba(255,255,255,0.4)"/>
+    <rect x="152" y="98" width="208" height="284" rx="18" fill="rgba(255,255,255,0.5)"/>
   </g>
   <!-- Front card -->
   <g filter="url(#shadow)">
     <rect x="148" y="90" width="216" height="292" rx="18" fill="url(#card-fill)"/>
   </g>
-  <!-- Pink accent line -->
-  <rect x="168" y="242" width="160" height="3" rx="1.5" fill="#ec4899" opacity="0.25"/>
+  <!-- Accent line -->
+  <rect x="168" y="242" width="160" height="3" rx="1.5" fill="#c97558" opacity="0.3"/>
   <!-- Big letter -->
-  <text x="256" y="210" font-family="-apple-system, 'Nunito', Arial, sans-serif" font-size="150" font-weight="800" fill="#ec4899" text-anchor="middle" dominant-baseline="middle">A</text>
+  <text x="256" y="210" font-family="-apple-system, 'Nunito', Arial, sans-serif" font-size="150" font-weight="800" fill="#c97558" text-anchor="middle" dominant-baseline="middle">A</text>
   <!-- Example word -->
-  <text x="256" y="308" font-family="-apple-system, 'Nunito', Arial, sans-serif" font-size="28" font-weight="700" fill="#a78bfa" text-anchor="middle">apple</text>
+  <text x="256" y="308" font-family="-apple-system, 'Nunito', Arial, sans-serif" font-size="28" font-weight="700" fill="#9a8bc2" text-anchor="middle">apple</text>
   <!-- Star -->
   <g transform="translate(385, 105)">
-    <polygon points="0,-22 6,-8 20,-6 10,5 12,20 0,13 -12,20 -10,5 -20,-6 -6,-8" fill="#fbbf24"/>
+    <polygon points="0,-22 6,-8 20,-6 10,5 12,20 0,13 -12,20 -10,5 -20,-6 -6,-8" fill="#d4a950"/>
   </g>
 </svg>

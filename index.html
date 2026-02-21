@@ -519,8 +519,8 @@
   }
 
   .flashcard-front {
-    background: linear-gradient(160deg, #3b2450, #2e1f3d);
-    border: 2px solid rgba(255,255,255,0.1);
+    background: var(--card-bg, linear-gradient(160deg, #3b2450, #2e1f3d));
+    border: 2px solid var(--card-border, rgba(255,255,255,0.1));
     justify-content: center;
     gap: 20px;
     padding: 24px;
@@ -594,6 +594,18 @@
     color: var(--pink-light);
     padding: 2px 6px;
     border-radius: 6px;
+    font-weight: 800;
+  }
+
+  .card-back-sentence .word-span {
+    transition: all 0.15s;
+    padding: 1px 2px;
+    border-radius: 4px;
+  }
+
+  .card-back-sentence .word-span.speaking {
+    background: rgba(251,191,36,0.4);
+    color: var(--yellow);
     font-weight: 800;
   }
 
@@ -671,6 +683,28 @@
 
   .card-dot.learned { background: var(--green); }
 
+  /* Swipe animation */
+  .flashcard.swipe-left {
+    animation: swipeLeft 0.35s ease-out;
+  }
+  .flashcard.swipe-right {
+    animation: swipeRight 0.35s ease-out;
+  }
+
+  @keyframes swipeLeft {
+    0% { transform: translateX(0) rotate(0deg); opacity: 1; }
+    40% { transform: translateX(-60%) rotate(-8deg); opacity: 0.3; }
+    41% { transform: translateX(60%) rotate(8deg); opacity: 0; }
+    100% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  }
+
+  @keyframes swipeRight {
+    0% { transform: translateX(0) rotate(0deg); opacity: 1; }
+    40% { transform: translateX(60%) rotate(8deg); opacity: 0.3; }
+    41% { transform: translateX(-60%) rotate(-8deg); opacity: 0; }
+    100% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  }
+
   /* ===== DECK LIBRARY ===== */
   .study-all-bar {
     padding: 16px 16px 0;
@@ -721,7 +755,7 @@
 
   .deck-card img {
     width: 100%;
-    height: 120px;
+    height: 160px;
     object-fit: cover;
   }
 
@@ -1142,6 +1176,7 @@ function stopCurrentAudio() {
     try { currentAudioSource.stop(); } catch(e) {}
     currentAudioSource = null;
   }
+  if (typeof clearWordHighlights === 'function') clearWordHighlights();
 }
 
 // ===== ELEMENTS =====
@@ -1454,19 +1489,29 @@ function renderFlashcard() {
   // Unflip card
   $('#flashcard').classList.remove('flipped');
 
-  // Front
+  // Front — color by level
+  const cardColors = {
+    'Pre-Primer': { bg: 'linear-gradient(160deg, #4a1942, #2e1f3d)', border: 'rgba(244,114,182,0.3)' },
+    'Primer': { bg: 'linear-gradient(160deg, #3d3015, #2e1f3d)', border: 'rgba(251,191,36,0.3)' },
+    'First Grade': { bg: 'linear-gradient(160deg, #1a2d4a, #2e1f3d)', border: 'rgba(96,165,250,0.3)' },
+    'Second Grade': { bg: 'linear-gradient(160deg, #2d1f4a, #2e1f3d)', border: 'rgba(167,139,250,0.3)' },
+    'Third Grade': { bg: 'linear-gradient(160deg, #1a3a2a, #2e1f3d)', border: 'rgba(74,222,128,0.3)' },
+  };
+  const colors = cardColors[card.level] || cardColors['Pre-Primer'];
+  const front = document.querySelector('.flashcard-front');
+  front.style.setProperty('--card-bg', colors.bg);
+  front.style.setProperty('--card-border', colors.border);
+
   $('#card-word').textContent = card.word;
   $('#card-level').textContent = card.level;
   $('#card-level').className = 'card-level-badge ' + levelClass(card.level);
 
-  // Back — sentence with highlighted word
+  // Back — sentence with each word wrapped for highlight animation
   const sentenceWords = card.sentence.match(/\S+/g) || [];
-  const sentenceHtml = sentenceWords.map(w => {
+  const sentenceHtml = sentenceWords.map((w, i) => {
     const clean = cleanWord(w);
-    if (clean === card.word) {
-      return `<span class="highlight">${escapeHtml(w)}</span>`;
-    }
-    return escapeHtml(w);
+    const cls = clean === card.word ? 'word-span highlight' : 'word-span';
+    return `<span class="${cls}" data-word-idx="${i}">${escapeHtml(w)}</span>`;
   }).join(' ');
   $('#card-sentence').innerHTML = sentenceHtml;
   $('#card-image').src = card.imageDataUrl || currentDeck.imageDataUrl;
@@ -1502,14 +1547,27 @@ function flipCard() {
 
 function nextCard() {
   if (!currentDeck || cardIndex >= currentDeck.cards.length - 1) return;
+  const fc = $('#flashcard');
+  fc.classList.add('swipe-left');
+  fc.addEventListener('animationend', function handler() {
+    fc.classList.remove('swipe-left');
+    fc.removeEventListener('animationend', handler);
+  });
   cardIndex++;
-  renderFlashcard();
+  // Delay render to mid-animation (card is invisible at 41%)
+  setTimeout(() => renderFlashcard(), 145);
 }
 
 function prevCard() {
   if (!currentDeck || cardIndex <= 0) return;
+  const fc = $('#flashcard');
+  fc.classList.add('swipe-right');
+  fc.addEventListener('animationend', function handler() {
+    fc.classList.remove('swipe-right');
+    fc.removeEventListener('animationend', handler);
+  });
   cardIndex--;
-  renderFlashcard();
+  setTimeout(() => renderFlashcard(), 145);
 }
 
 function markAsKnown() {
@@ -1618,8 +1676,19 @@ async function speakWord(word) {
   }
 }
 
+let wordHighlightTimers = [];
+
+function clearWordHighlights() {
+  wordHighlightTimers.forEach(t => clearTimeout(t));
+  wordHighlightTimers = [];
+  document.querySelectorAll('#card-sentence .word-span.speaking').forEach(el => {
+    el.classList.remove('speaking');
+  });
+}
+
 async function speakSentence(sentence) {
   stopCurrentAudio();
+  clearWordHighlights();
   await ensureAudioContext();
 
   const btn = $('#card-sentence-speak');
@@ -1653,8 +1722,41 @@ async function speakSentence(sentence) {
     source.buffer = audioBuffer;
     source.connect(audioCtx.destination);
     currentAudioSource = source;
-    source.onended = () => { currentAudioSource = null; };
+    source.onended = () => {
+      currentAudioSource = null;
+      clearWordHighlights();
+    };
     source.start(0);
+
+    // Animate word-by-word highlight based on estimated timing
+    const wordSpans = document.querySelectorAll('#card-sentence .word-span');
+    if (wordSpans.length > 0) {
+      const duration = audioBuffer.duration * 1000; // ms
+      // Weight timing by word length (longer words take longer to speak)
+      const words = [];
+      let totalLen = 0;
+      wordSpans.forEach(span => {
+        const len = Math.max(span.textContent.length, 1);
+        words.push({ span, len });
+        totalLen += len;
+      });
+
+      let elapsed = 0;
+      // Small initial delay for TTS startup
+      const startDelay = 80;
+      words.forEach((w, i) => {
+        const wordDuration = (w.len / totalLen) * (duration - startDelay);
+        const startTime = startDelay + elapsed;
+        elapsed += wordDuration;
+
+        const timer = setTimeout(() => {
+          // Remove previous highlights
+          wordSpans.forEach(s => s.classList.remove('speaking'));
+          w.span.classList.add('speaking');
+        }, startTime);
+        wordHighlightTimers.push(timer);
+      });
+    }
   } catch(e) {
     console.error('Sentence TTS failed:', e);
   } finally {

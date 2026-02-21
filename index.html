@@ -737,83 +737,72 @@
 
   .library-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
     padding: 16px;
   }
 
-  .deck-card {
+  .word-card {
     background: var(--bg-card);
     border-radius: 16px;
-    overflow: hidden;
+    padding: 18px 8px;
     cursor: pointer;
-    position: relative;
+    text-align: center;
     transition: transform 0.15s;
+    border: 2px solid transparent;
   }
 
-  .deck-card:active { transform: scale(0.97); }
+  .word-card:active { transform: scale(0.93); }
 
-  .deck-card-preview {
-    width: 100%;
-    min-height: 120px;
-    padding: 12px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-content: flex-start;
-  }
-
-  .deck-word-chip {
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 700;
+  .word-card-word {
+    font-size: 22px;
+    font-weight: 800;
     color: white;
+    line-height: 1.2;
   }
 
-  .deck-word-chip.chip-learned {
+  .word-card-level {
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 6px;
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .word-card.learned {
     opacity: 0.5;
+  }
+
+  .word-card.learned .word-card-word {
     text-decoration: line-through;
   }
 
-  .deck-info {
-    padding: 10px 12px;
-  }
-
-  .deck-name {
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .deck-meta {
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
+  .word-card.learned::after {
+    content: '✓';
+    display: block;
+    font-size: 14px;
     margin-top: 4px;
-    display: flex;
-    gap: 8px;
+    color: var(--green);
   }
 
-  .deck-meta .learned-count { color: var(--green); }
+  .manage-decks-bar {
+    padding: 0 16px 8px;
+    display: flex;
+    justify-content: flex-end;
+  }
 
-  .delete-deck-btn {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
+  .manage-decks-btn {
+    background: none;
     border: none;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    font-size: 16px;
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+    font-family: inherit;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 4px 8px;
   }
+
+  .manage-decks-btn:active { color: rgba(255,255,255,0.7); }
 
   .library-empty {
     grid-column: 1 / -1;
@@ -999,6 +988,9 @@
   <div id="study-all-bar" class="study-all-bar" style="display:none">
     <button id="study-all-btn" class="study-all-btn">📖 Study All Words</button>
     <span id="study-all-count" class="study-all-count"></span>
+  </div>
+  <div id="manage-decks-bar" class="manage-decks-bar" style="display:none">
+    <button id="manage-decks-btn" class="manage-decks-btn">Manage Decks</button>
   </div>
   <div id="library-grid" class="library-grid"></div>
 </div>
@@ -1482,9 +1474,9 @@ function closeTextReview() {
 }
 
 // ===== FLASHCARD VIEW =====
-function openFlashcardView(deck) {
+function openFlashcardView(deck, startIndex) {
   currentDeck = deck;
-  cardIndex = 0;
+  cardIndex = startIndex || 0;
   renderFlashcard();
   $('#flashcard-view').classList.add('visible');
 }
@@ -1903,9 +1895,11 @@ async function renderLibrary() {
 
   const grid = $('#library-grid');
   const studyBar = $('#study-all-bar');
+  const manageBar = $('#manage-decks-bar');
 
   if (decks.length === 0) {
     studyBar.style.display = 'none';
+    manageBar.style.display = 'none';
     grid.innerHTML = `
       <div class="library-empty">
         <span class="empty-icon">🃏</span>
@@ -1914,38 +1908,45 @@ async function renderLibrary() {
     return;
   }
 
-  // Show Study All button with combined word count
+  // Collect all unique words across all decks
   const learned = getLearnedWords();
-  const allWords = new Set();
-  decks.forEach(d => d.cards.forEach(c => allWords.add(c.word)));
-  const totalWords = allWords.size;
-  const totalLearned = [...allWords].filter(w => learned.has(w)).length;
+  const wordMap = new Map(); // word -> { word, sentence, level, imageDataUrl }
+  for (const deck of decks) {
+    for (const card of deck.cards) {
+      if (!wordMap.has(card.word)) {
+        wordMap.set(card.word, {
+          word: card.word,
+          sentence: card.sentence,
+          level: card.level,
+          imageDataUrl: deck.imageDataUrl
+        });
+      }
+    }
+  }
+
+  const allWordsList = [...wordMap.values()];
+  const levelOrder = ['Pre-Primer', 'Primer', 'First Grade', 'Second Grade', 'Third Grade'];
+  allWordsList.sort((a, b) => levelOrder.indexOf(a.level) - levelOrder.indexOf(b.level));
+
+  const totalWords = allWordsList.length;
+  const totalLearned = allWordsList.filter(w => learned.has(w.word)).length;
 
   studyBar.style.display = 'flex';
+  manageBar.style.display = 'flex';
   $('#study-all-count').textContent = `${totalLearned}/${totalWords} learned`;
 
-  decks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  // Store for click handler
+  window._homeWordList = allWordsList;
 
-  const chipColors = ['#ec4899','#fbbf24','#60a5fa','#a78bfa','#4ade80','#fb923c','#5eead4','#f43f5e'];
+  const cardColors = ['#ec4899','#fbbf24','#60a5fa','#a78bfa','#4ade80','#fb923c','#5eead4','#f43f5e'];
 
-  grid.innerHTML = decks.map(deck => {
-    const learnedCount = deck.cards.filter(c => learned.has(c.word)).length;
-    const wordChips = deck.cards.map((c, i) => {
-      const bg = chipColors[i % chipColors.length];
-      const cls = learned.has(c.word) ? 'deck-word-chip chip-learned' : 'deck-word-chip';
-      return `<span class="${cls}" style="background:${bg}">${escapeHtml(c.word)}</span>`;
-    }).join('');
+  grid.innerHTML = allWordsList.map((w, i) => {
+    const bg = cardColors[i % cardColors.length];
+    const isLearned = learned.has(w.word);
     return `
-      <div class="deck-card" data-deck-id="${deck.id}">
-        <button class="delete-deck-btn" data-deck-id="${deck.id}">&times;</button>
-        <div class="deck-card-preview">${wordChips}</div>
-        <div class="deck-info">
-          <div class="deck-name">${escapeHtml(deck.name)}</div>
-          <div class="deck-meta">
-            <span>${deck.cards.length} words</span>
-            <span class="learned-count">${learnedCount} learned</span>
-          </div>
-        </div>
+      <div class="word-card${isLearned ? ' learned' : ''}" data-word-idx="${i}" style="border-color:${bg}; background: linear-gradient(135deg, ${bg}22, ${bg}11);">
+        <div class="word-card-word" style="color:${bg}">${escapeHtml(w.word)}</div>
+        <div class="word-card-level" style="color:${bg}">${w.level}</div>
       </div>`;
   }).join('');
 }
@@ -1992,34 +1993,42 @@ async function studyAllWords() {
 }
 
 $('#library-grid').addEventListener('click', async (e) => {
-  const delBtn = e.target.closest('.delete-deck-btn');
-  if (delBtn) {
-    e.stopPropagation();
-    const deckId = delBtn.dataset.deckId;
-    if (confirm('Delete this deck?')) {
-      await deleteDeckFromDB(deckId);
-      await renderLibrary();
-    }
-    return;
+  const wordCard = e.target.closest('.word-card');
+  if (wordCard && window._homeWordList) {
+    const idx = parseInt(wordCard.dataset.wordIdx, 10);
+    const learned = getLearnedWords();
+    const allCards = window._homeWordList.map(w => ({
+      word: w.word,
+      sentence: w.sentence,
+      level: w.level,
+      learned: learned.has(w.word),
+      imageDataUrl: w.imageDataUrl
+    }));
+    const combinedDeck = {
+      id: null,
+      name: 'All Words',
+      imageDataUrl: allCards[0]?.imageDataUrl,
+      cards: allCards,
+      _isComposite: true
+    };
+    openFlashcardView(combinedDeck, idx);
   }
+});
 
-  const card = e.target.closest('.deck-card');
-  if (card) {
-    const deckId = card.dataset.deckId;
-    try {
-      const db = await openDB();
-      const tx = db.transaction('decks', 'readonly');
-      const req = tx.objectStore('decks').get(deckId);
-      req.onsuccess = () => {
-        const deck = req.result;
-        if (deck) {
-          const learned = getLearnedWords();
-          deck.cards.forEach(c => { c.learned = learned.has(c.word); });
-          openFlashcardView(deck);
-        }
-      };
-    } catch(e) {
-      console.error('Failed to load deck:', e);
+// Manage Decks modal
+$('#manage-decks-btn').addEventListener('click', async () => {
+  let decks = [];
+  try { decks = await loadDecksFromDB(); } catch(e) { return; }
+  if (decks.length === 0) return;
+
+  const deckNames = decks.map((d, i) => `${i + 1}. ${d.name} (${d.cards.length} words)`).join('\n');
+  const input = prompt('Enter deck number to delete:\n\n' + deckNames);
+  if (!input) return;
+  const num = parseInt(input, 10);
+  if (num >= 1 && num <= decks.length) {
+    if (confirm(`Delete "${decks[num - 1].name}"?`)) {
+      await deleteDeckFromDB(decks[num - 1].id);
+      await renderLibrary();
     }
   }
 });

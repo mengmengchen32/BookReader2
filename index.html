@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Flashcards">
-<meta name="theme-color" content="#e8d5c4">
+<meta name="theme-color" content="#faf5ed">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>佑佑的认字卡</title>
@@ -16,23 +16,23 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
-    --pink: #d4856a;
-    --pink-light: #e8a98d;
-    --pink-hot: #c97558;
-    --yellow: #d4a950;
-    --orange: #cc8855;
-    --purple: #9a8bc2;
-    --blue: #7ba8b8;
-    --green: #7db88a;
-    --bg-warm: #e8d5c4;
-    --bg-card: #f5ece4;
-    --bg-header: #dcc8b4;
-    --text-primary: #4a3728;
-    --text-secondary: #8a7568;
-    --text-muted: #b5a396;
+    --pink: #ea7197;
+    --pink-light: #d3a8b6;
+    --pink-hot: #c23d44;
+    --yellow: #fecf34;
+    --orange: #b79972;
+    --purple: #d3a8b6;
+    --blue: #41b08d;
+    --green: #7ed466;
+    --bg-warm: #faf5ed;
+    --bg-card: #ffffff;
+    --bg-header: #f0e8dd;
+    --text-primary: #022f41;
+    --text-secondary: #2a4f62;
+    --text-muted: #7a9aaa;
     --radius: 20px;
-    --shadow: 0 4px 16px rgba(74,55,40,0.1);
-    --shadow-lg: 0 8px 32px rgba(74,55,40,0.15);
+    --shadow: 0 4px 16px rgba(2,47,65,0.08);
+    --shadow-lg: 0 8px 32px rgba(2,47,65,0.12);
   }
 
   body {
@@ -60,7 +60,7 @@
     align-items: center;
     padding: 12px 16px;
     gap: 10px;
-    background: rgba(232,213,196,0.95);
+    background: rgba(250,245,237,0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     position: sticky;
@@ -96,14 +96,14 @@
     height: 64px;
     border-radius: 50%;
     border: none;
-    background: linear-gradient(135deg, #c97558, #9a8bc2);
+    background: linear-gradient(135deg, #ea7197, #fecf34);
     font-size: 32px;
     cursor: pointer;
     z-index: 40;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 24px rgba(201,117,88,0.35);
+    box-shadow: 0 6px 24px rgba(234,113,151,0.4);
     transition: transform 0.15s;
   }
 
@@ -297,7 +297,7 @@
     align-items: center;
     padding: 12px 16px;
     gap: 12px;
-    background: rgba(232,213,196,0.95);
+    background: rgba(250,245,237,0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     position: sticky;
@@ -358,7 +358,7 @@
     max-width: 320px;
     padding: 14px 16px;
     border-radius: 12px;
-    border: 2px solid rgba(74,55,40,0.15);
+    border: 2px solid rgba(2,47,65,0.12);
     background: var(--bg-card);
     color: var(--text-primary);
     font-size: 16px;
@@ -372,7 +372,7 @@
     padding: 14px 40px;
     border-radius: 12px;
     border: none;
-    background: linear-gradient(135deg, #c97558, #9a8bc2);
+    background: linear-gradient(135deg, #ea7197, #fecf34);
     color: white;
     font-size: 18px;
     font-weight: 800;
@@ -395,7 +395,7 @@
   }
 
   .review-stats {
-    background: linear-gradient(135deg, #c97558, #9a8bc2);
+    background: linear-gradient(135deg, #ea7197, #fecf34);
     padding: 12px 16px;
     border-radius: 12px;
     font-size: 18px;
@@ -420,8 +420,8 @@
   .review-sentences p:last-child { margin-bottom: 0; }
 
   .sight-word {
-    background: rgba(201, 117, 88, 0.2);
-    color: #b05a3a;
+    background: rgba(234, 113, 151, 0.2);
+    color: #c23d44;
     padding: 2px 6px;
     border-radius: 6px;
     font-weight: 800;
@@ -430,14 +430,14 @@
   }
 
   .sight-word.excluded {
-    background: rgba(74,55,40,0.05);
+    background: rgba(2,47,65,0.05);
     color: var(--text-muted);
     text-decoration: line-through;
   }
 
   .learned-word {
-    background: rgba(125, 184, 138, 0.25);
-    color: #4a8a58;
+    background: rgba(126, 212, 102, 0.25);
+    color: #2e8a40;
     padding: 2px 6px;
     border-radius: 6px;
     font-weight: 800;
@@ -446,7 +446,7 @@
   }
 
   .learned-word.excluded {
-    background: rgba(74,55,40,0.05);
+    background: rgba(2,47,65,0.05);
     color: var(--text-muted);
     text-decoration: line-through;
   }
@@ -456,13 +456,13 @@
     padding: 18px;
     border-radius: 16px;
     border: none;
-    background: linear-gradient(135deg, #c97558, #d4a950);
+    background: linear-gradient(135deg, #c23d44, #ea7197);
     color: white;
     font-size: 20px;
     font-weight: 800;
     cursor: pointer;
     font-family: inherit;
-    box-shadow: 0 6px 24px rgba(201,117,88,0.3);
+    box-shadow: 0 6px 24px rgba(194,61,68,0.35);
   }
 
   .make-flashcards-btn:active { transform: scale(0.97); }
@@ -532,8 +532,8 @@
   }
 
   .flashcard-front {
-    background: var(--card-bg, linear-gradient(160deg, #f5ece4, #ede2d6));
-    border: 2px solid var(--card-border, rgba(74,55,40,0.1));
+    background: var(--card-bg, linear-gradient(160deg, #ffffff, #faf5ed));
+    border: 2px solid var(--card-border, rgba(2,47,65,0.08));
     justify-content: center;
     gap: 20px;
     padding: 24px;
@@ -541,8 +541,8 @@
   }
 
   .flashcard-back {
-    background: linear-gradient(160deg, #f5ece4, #ede2d6);
-    border: 2px solid rgba(74,55,40,0.1);
+    background: linear-gradient(160deg, #ffffff, #faf5ed);
+    border: 2px solid rgba(2,47,65,0.08);
     transform: rotateY(180deg);
     padding: 0;
     box-shadow: var(--shadow-lg);
@@ -557,25 +557,25 @@
     letter-spacing: 0.5px;
   }
 
-  .level-pre-primer { background: rgba(201,117,88,0.15); color: #b05a3a; }
-  .level-primer { background: rgba(212,169,80,0.15); color: #9a7830; }
-  .level-first-grade { background: rgba(123,168,184,0.2); color: #5a8a9a; }
-  .level-second-grade { background: rgba(154,139,194,0.2); color: #7a6aaa; }
-  .level-third-grade { background: rgba(125,184,138,0.2); color: #4a8a58; }
+  .level-pre-primer { background: rgba(194,61,68,0.12); color: #c23d44; }
+  .level-primer { background: rgba(234,113,151,0.12); color: #d0507a; }
+  .level-first-grade { background: rgba(65,176,141,0.15); color: #2a8a68; }
+  .level-second-grade { background: rgba(211,168,182,0.2); color: #a0708a; }
+  .level-third-grade { background: rgba(126,212,102,0.15); color: #3a9030; }
 
   .card-word {
     font-size: 56px;
     font-weight: 800;
     text-align: center;
     color: var(--text-primary);
-    text-shadow: 0 2px 8px rgba(74,55,40,0.1);
+    text-shadow: 0 2px 8px rgba(2,47,65,0.08);
   }
 
   .card-speak-btn {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    border: 2px solid rgba(74,55,40,0.12);
+    border: 2px solid rgba(2,47,65,0.1);
     background: rgba(255,255,255,0.6);
     font-size: 28px;
     cursor: pointer;
@@ -607,8 +607,8 @@
   }
 
   .card-back-sentence .highlight {
-    background: rgba(201,117,88,0.2);
-    color: #b05a3a;
+    background: rgba(234,113,151,0.2);
+    color: #c23d44;
     padding: 2px 6px;
     border-radius: 6px;
     font-weight: 800;
@@ -622,8 +622,8 @@
   }
 
   .card-back-sentence .word-span.speaking {
-    background: rgba(212,169,80,0.35);
-    color: #8a6820;
+    background: rgba(254,207,52,0.4);
+    color: #9a7a10;
     font-weight: 800;
   }
 
@@ -631,7 +631,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 2px solid rgba(74,55,40,0.12);
+    border: 2px solid rgba(2,47,65,0.1);
     background: rgba(255,255,255,0.6);
     font-size: 20px;
     cursor: pointer;
@@ -658,21 +658,21 @@
     padding: 16px 40px;
     border-radius: 16px;
     border: none;
-    background: linear-gradient(135deg, #7db88a, #5a9a68);
+    background: linear-gradient(135deg, #7ed466, #41b08d);
     color: white;
     font-size: 18px;
     font-weight: 800;
     cursor: pointer;
     font-family: inherit;
-    box-shadow: 0 6px 20px rgba(125,184,138,0.3);
+    box-shadow: 0 6px 20px rgba(126,212,102,0.35);
     transition: all 0.2s;
   }
 
   .know-btn:active { transform: scale(0.95); }
 
   .know-btn.known {
-    background: rgba(125,184,138,0.2);
-    color: #4a8a58;
+    background: rgba(126,212,102,0.2);
+    color: #2e8a40;
     box-shadow: none;
   }
 
@@ -690,7 +690,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: rgba(74,55,40,0.15);
+    background: rgba(2,47,65,0.12);
     transition: all 0.3s;
   }
 
@@ -737,13 +737,13 @@
     padding: 16px;
     border-radius: 16px;
     border: none;
-    background: linear-gradient(135deg, #c97558, #9a8bc2);
+    background: linear-gradient(135deg, #ea7197, #fecf34);
     color: white;
     font-size: 18px;
     font-weight: 800;
     cursor: pointer;
     font-family: inherit;
-    box-shadow: 0 6px 20px rgba(201,117,88,0.25);
+    box-shadow: 0 6px 20px rgba(234,113,151,0.3);
   }
 
   .study-all-btn:active { transform: scale(0.97); }
@@ -802,7 +802,7 @@
     display: block;
     font-size: 14px;
     margin-top: 4px;
-    color: #4a8a58;
+    color: #2e8a40;
   }
 
   .manage-decks-bar {
@@ -843,7 +843,7 @@
   .progress-overall {
     text-align: center;
     padding: 24px;
-    background: linear-gradient(135deg, rgba(201,117,88,0.12), rgba(154,139,194,0.12));
+    background: linear-gradient(135deg, rgba(234,113,151,0.12), rgba(65,176,141,0.12));
     border-radius: 20px;
     margin-bottom: 20px;
     box-shadow: var(--shadow);
@@ -852,7 +852,7 @@
   .progress-big-number {
     font-size: 48px;
     font-weight: 800;
-    background: linear-gradient(135deg, #c97558, #d4a950);
+    background: linear-gradient(135deg, #c23d44, #ea7197);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -877,7 +877,7 @@
 
   .progress-bar {
     height: 12px;
-    background: rgba(74,55,40,0.08);
+    background: rgba(2,47,65,0.06);
     border-radius: 6px;
     overflow: hidden;
     margin-bottom: 8px;
@@ -900,14 +900,14 @@
     border-radius: 8px;
     font-size: 12px;
     font-weight: 700;
-    background: rgba(74,55,40,0.06);
+    background: rgba(2,47,65,0.05);
     color: var(--text-muted);
     cursor: pointer;
   }
 
   .word-chip.learned {
-    background: rgba(125,184,138,0.2);
-    color: #4a8a58;
+    background: rgba(126,212,102,0.2);
+    color: #2e8a40;
   }
 
   /* ===== SETTINGS ===== */
@@ -937,7 +937,7 @@
     width: 100%;
     padding: 12px;
     border-radius: 10px;
-    border: 2px solid rgba(74,55,40,0.1);
+    border: 2px solid rgba(2,47,65,0.08);
     background: rgba(255,255,255,0.5);
     color: var(--text-primary);
     font-size: 16px;
@@ -955,7 +955,7 @@
     padding: 16px;
     border-radius: 16px;
     border: none;
-    background: linear-gradient(135deg, #c97558, #9a8bc2);
+    background: linear-gradient(135deg, #ea7197, #fecf34);
     color: white;
     font-size: 18px;
     font-weight: 800;
@@ -980,7 +980,7 @@
     width: 0;
     height: 0;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(212,169,80,0.4), transparent 70%);
+    background: radial-gradient(circle, rgba(254,207,52,0.5), transparent 70%);
     animation: star-burst 0.6s ease-out forwards;
   }
 
@@ -997,8 +997,10 @@
   #celebration .confetti.circle { border-radius: 50%; }
   #celebration .confetti.rect { border-radius: 2px; }
   #celebration .confetti.star {
-    background: none !important;
     clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+  #celebration .confetti.diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   }
 
   /* ===== RESPONSIVE ===== */
@@ -1538,14 +1540,14 @@ function renderFlashcard() {
 
   // Front — unique color per card using index-based hue rotation
   const palette = [
-    { h1: '#f0d8cc', h2: '#f5ece4', border: 'rgba(201,117,88,0.3)' },   // coral
-    { h1: '#f0e4c8', h2: '#f5ece4', border: 'rgba(212,169,80,0.3)' },   // sand
-    { h1: '#d0e0e8', h2: '#f5ece4', border: 'rgba(123,168,184,0.3)' },  // sky
-    { h1: '#e0d8f0', h2: '#f5ece4', border: 'rgba(154,139,194,0.3)' },  // lavender
-    { h1: '#d0e8d8', h2: '#f5ece4', border: 'rgba(125,184,138,0.3)' },  // sage
-    { h1: '#f0dcc8', h2: '#f5ece4', border: 'rgba(204,136,85,0.3)' },   // terracotta
-    { h1: '#c8e0e0', h2: '#f5ece4', border: 'rgba(120,180,180,0.3)' },  // teal
-    { h1: '#f0d0d8', h2: '#f5ece4', border: 'rgba(200,130,145,0.3)' },  // rose
+    { h1: '#fce0ea', h2: '#fff8fa', border: 'rgba(234,113,151,0.35)' },  // pink
+    { h1: '#e0f8d8', h2: '#f5fff2', border: 'rgba(126,212,102,0.35)' },  // green
+    { h1: '#fff6d0', h2: '#fffef5', border: 'rgba(254,207,52,0.3)' },    // yellow
+    { h1: '#f0e0e8', h2: '#faf5f8', border: 'rgba(211,168,182,0.35)' },  // mauve
+    { h1: '#d8f5ec', h2: '#f0fcf8', border: 'rgba(65,176,141,0.35)' },   // teal
+    { h1: '#fce0e2', h2: '#fff5f6', border: 'rgba(194,61,68,0.3)' },     // red
+    { h1: '#f0e8d8', h2: '#faf7f0', border: 'rgba(183,153,114,0.35)' },  // tan
+    { h1: '#fef8d8', h2: '#fffef2', border: 'rgba(253,231,127,0.3)' },   // light yellow
   ];
   const p = palette[cardIndex % palette.length];
   const front = document.querySelector('.flashcard-front');
@@ -1976,7 +1978,7 @@ async function renderLibrary() {
   // Store for click handler
   window._homeWordList = allWordsList;
 
-  const cardColors = ['#c97558','#d4a950','#7ba8b8','#9a8bc2','#7db88a','#cc8855','#78b4b4','#c8828a'];
+  const cardColors = ['#c23d44','#41b08d','#ea7197','#b79972','#7ed466','#022f41','#d3a8b6','#c9a520'];
 
   grid.innerHTML = allWordsList.map((w, i) => {
     const bg = cardColors[i % cardColors.length];
@@ -2132,84 +2134,82 @@ $('#progress-content').addEventListener('click', (e) => {
   if (chip) speakWord(chip.dataset.word);
 });
 
-// ===== CELEBRATION =====
+// ===== CELEBRATION (STARBURST) =====
 function celebrate() {
   const container = $('#celebration');
   container.innerHTML = '';
-  const colors = ['#c97558', '#d4a950', '#7ba8b8', '#9a8bc2', '#7db88a', '#cc8855', '#78b4b4', '#c8828a'];
-  const shapes = ['circle', 'rect', 'star', 'circle', 'rect'];
-  const count = 50;
+  const colors = ['#c23d44','#41b08d','#ea7197','#b79972','#7ed466','#fecf34','#d3a8b6','#fde77f','#022f41'];
+  const shapes = ['circle','rect','star','diamond','circle','rect'];
   const cx = window.innerWidth / 2;
   const cy = window.innerHeight * 0.45;
 
-  // Golden burst flash
-  const burst = document.createElement('div');
-  burst.className = 'star-burst';
-  container.appendChild(burst);
+  function randColor() { return colors[Math.floor(Math.random() * colors.length)]; }
+  function randShape() { return shapes[Math.floor(Math.random() * shapes.length)]; }
 
-  // Spawn confetti pieces
-  for (let i = 0; i < count; i++) {
+  // Central flash
+  const flash = document.createElement('div');
+  flash.className = 'star-burst';
+  flash.style.cssText = `left:${cx}px;top:${cy}px;width:0;height:0;background:radial-gradient(circle,rgba(254,207,52,0.6),rgba(234,113,151,0.3) 40%,transparent 70%)`;
+  flash.animate([
+    { width: '0px', height: '0px', opacity: 1, transform: 'translate(-50%,-50%)' },
+    { width: '500px', height: '500px', opacity: 0, transform: 'translate(-50%,-50%)' }
+  ], { duration: 800, fill: 'forwards' });
+  container.appendChild(flash);
+
+  // Radial rays
+  const rays = 12;
+  for (let r = 0; r < rays; r++) {
+    const angle = (Math.PI * 2 * r / rays);
+    const len = 250 + Math.random() * 150;
     const el = document.createElement('div');
-    const shape = shapes[Math.floor(Math.random() * shapes.length)];
-    el.className = 'confetti ' + shape;
-    const size = shape === 'star' ? (10 + Math.random() * 10) : (5 + Math.random() * 9);
-    el.style.width = size + 'px';
-    el.style.height = shape === 'rect' ? (size * (0.4 + Math.random() * 0.4)) + 'px' : size + 'px';
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    el.style.background = shape === 'star' ? color : color;
-    if (shape === 'star') el.style.background = color;
-
-    // Start from center
+    el.className = 'confetti rect';
+    el.style.width = '3px';
+    el.style.height = '40px';
+    el.style.background = randColor();
     el.style.left = cx + 'px';
     el.style.top = cy + 'px';
+    el.style.transformOrigin = 'center center';
 
-    // Physics: burst outward then float down
-    const angle = (Math.PI * 2 * i / count) + (Math.random() - 0.5) * 0.8;
-    const velocity = 200 + Math.random() * 350;
-    const vx = Math.cos(angle) * velocity;
-    const vy = Math.sin(angle) * velocity - 150; // bias upward
-    const spin = (Math.random() - 0.5) * 1080;
-    const drift = (Math.random() - 0.5) * 60;
-    const delay = Math.random() * 0.15;
-    const duration = 1.6 + Math.random() * 0.8;
+    const ex = Math.cos(angle) * len, ey = Math.sin(angle) * len;
+    const deg = (angle * 180 / Math.PI) + 90;
 
     el.animate([
-      {
-        transform: `translate(0, 0) rotate(0deg) scale(0)`,
-        opacity: 1,
-        offset: 0
-      },
-      {
-        transform: `translate(${vx * 0.15}px, ${vy * 0.15}px) rotate(${spin * 0.2}deg) scale(1.2)`,
-        opacity: 1,
-        offset: 0.1
-      },
-      {
-        transform: `translate(${vx * 0.5 + drift}px, ${vy * 0.3}px) rotate(${spin * 0.5}deg) scale(1)`,
-        opacity: 1,
-        offset: 0.35
-      },
-      {
-        transform: `translate(${vx * 0.7 + drift * 2}px, ${vy * 0.1 + 300}px) rotate(${spin * 0.8}deg) scale(0.8)`,
-        opacity: 0.7,
-        offset: 0.7
-      },
-      {
-        transform: `translate(${vx * 0.8 + drift * 3}px, ${500 + Math.random() * 200}px) rotate(${spin}deg) scale(0)`,
-        opacity: 0,
-        offset: 1
-      }
-    ], {
-      duration: duration * 1000,
-      delay: delay * 1000,
-      easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      fill: 'forwards'
-    });
+      { transform: `translate(0,0) rotate(${deg}deg) scaleY(0)`, opacity: 1, offset: 0 },
+      { transform: `translate(${ex*0.5}px,${ey*0.5}px) rotate(${deg}deg) scaleY(2)`, opacity: 1, offset: 0.3 },
+      { transform: `translate(${ex}px,${ey}px) rotate(${deg}deg) scaleY(0.5)`, opacity: 0, offset: 1 }
+    ], { duration: 800, easing: 'ease-out', fill: 'forwards' });
 
     container.appendChild(el);
   }
 
-  setTimeout(() => { container.innerHTML = ''; }, 3000);
+  // Sparkle particles
+  for (let i = 0; i < 45; i++) {
+    const shape = Math.random() > 0.4 ? 'star' : 'diamond';
+    const size = shape === 'star' ? (8 + Math.random() * 14) : (6 + Math.random() * 10);
+    const el = document.createElement('div');
+    el.className = 'confetti ' + shape;
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.background = randColor();
+    el.style.left = cx + 'px';
+    el.style.top = cy + 'px';
+
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 80 + Math.random() * 300;
+    const ex = Math.cos(angle) * dist, ey = Math.sin(angle) * dist;
+    const spin = (Math.random() - 0.5) * 720;
+
+    el.animate([
+      { transform: 'translate(0,0) scale(0) rotate(0)', opacity: 0, offset: 0 },
+      { transform: `translate(${ex*0.3}px,${ey*0.3}px) scale(1.5) rotate(${spin*0.3}deg)`, opacity: 1, offset: 0.2 },
+      { transform: `translate(${ex*0.7}px,${ey*0.7}px) scale(1) rotate(${spin*0.6}deg)`, opacity: 0.8, offset: 0.5 },
+      { transform: `translate(${ex}px,${ey+120}px) scale(0) rotate(${spin}deg)`, opacity: 0, offset: 1 }
+    ], { duration: 1500 + Math.random() * 800, delay: 100 + Math.random() * 300, easing: 'ease-out', fill: 'forwards' });
+
+    container.appendChild(el);
+  }
+
+  setTimeout(() => { container.innerHTML = ''; }, 3500);
 }
 
 // ===== EVENT LISTENERS =====

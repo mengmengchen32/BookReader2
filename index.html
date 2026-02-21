@@ -657,6 +657,35 @@
   .card-dot.learned { background: var(--green); }
 
   /* ===== DECK LIBRARY ===== */
+  .study-all-bar {
+    padding: 16px 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .study-all-btn {
+    flex: 1;
+    padding: 16px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, var(--pink-hot), var(--purple));
+    color: white;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 16px rgba(236,72,153,0.3);
+  }
+
+  .study-all-btn:active { transform: scale(0.97); }
+
+  .study-all-count {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    white-space: nowrap;
+  }
+
   .library-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -970,6 +999,10 @@
   <div class="screen-header">
     <button class="back-btn" id="close-library">✕</button>
     <span class="screen-title">My Flashcard Decks</span>
+  </div>
+  <div id="study-all-bar" class="study-all-bar" style="display:none">
+    <button id="study-all-btn" class="study-all-btn">📖 Study All Words</button>
+    <span id="study-all-count" class="study-all-count"></span>
   </div>
   <div id="library-grid" class="library-grid"></div>
 </div>
@@ -1405,7 +1438,7 @@ function renderFlashcard() {
     return escapeHtml(w);
   }).join(' ');
   $('#card-sentence').innerHTML = sentenceHtml;
-  $('#card-image').src = currentDeck.imageDataUrl;
+  $('#card-image').src = card.imageDataUrl || currentDeck.imageDataUrl;
 
   // Counter
   $('#card-counter').textContent = `${cardIndex + 1} / ${currentDeck.cards.length}`;
@@ -1724,8 +1757,10 @@ async function renderLibrary() {
   try { decks = await loadDecksFromDB(); } catch(e) { console.error(e); }
 
   const grid = $('#library-grid');
+  const studyBar = $('#study-all-bar');
 
   if (decks.length === 0) {
+    studyBar.style.display = 'none';
     grid.innerHTML = `
       <div class="library-empty">
         <span class="empty-icon">🃏</span>
@@ -1734,8 +1769,17 @@ async function renderLibrary() {
     return;
   }
 
-  decks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  // Show Study All button with combined word count
   const learned = getLearnedWords();
+  const allWords = new Set();
+  decks.forEach(d => d.cards.forEach(c => allWords.add(c.word)));
+  const totalWords = allWords.size;
+  const totalLearned = [...allWords].filter(w => learned.has(w)).length;
+
+  studyBar.style.display = 'flex';
+  $('#study-all-count').textContent = `${totalLearned}/${totalWords} learned`;
+
+  decks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   grid.innerHTML = decks.map(deck => {
     const learnedCount = deck.cards.filter(c => learned.has(c.word)).length;
@@ -1752,6 +1796,48 @@ async function renderLibrary() {
         </div>
       </div>`;
   }).join('');
+}
+
+async function studyAllWords() {
+  let decks = [];
+  try { decks = await loadDecksFromDB(); } catch(e) { return; }
+  if (decks.length === 0) return;
+
+  // Merge all cards, deduplicate by word (keep first occurrence for sentence/image)
+  const seen = new Set();
+  const learned = getLearnedWords();
+  const allCards = [];
+
+  for (const deck of decks) {
+    for (const card of deck.cards) {
+      if (!seen.has(card.word)) {
+        seen.add(card.word);
+        allCards.push({
+          word: card.word,
+          sentence: card.sentence,
+          level: card.level,
+          learned: learned.has(card.word),
+          imageDataUrl: deck.imageDataUrl
+        });
+      }
+    }
+  }
+
+  // Sort by difficulty
+  const levelOrder = ['Pre-Primer', 'Primer', 'First Grade', 'Second Grade', 'Third Grade'];
+  allCards.sort((a, b) => levelOrder.indexOf(a.level) - levelOrder.indexOf(b.level));
+
+  // Create a virtual deck (not saved — it's a combined view)
+  const combinedDeck = {
+    id: null, // null = don't persist
+    name: 'All Words',
+    imageDataUrl: decks[0].imageDataUrl,
+    cards: allCards,
+    _isComposite: true
+  };
+
+  closeLibrary();
+  openFlashcardView(combinedDeck);
 }
 
 $('#library-grid').addEventListener('click', async (e) => {
@@ -1903,6 +1989,7 @@ $('#close-progress').addEventListener('click', closeProgress);
 $('#close-review').addEventListener('click', closeTextReview);
 $('#make-flashcards-btn').addEventListener('click', createFlashcardDeck);
 $('#close-flashcards').addEventListener('click', closeFlashcardView);
+$('#study-all-btn').addEventListener('click', studyAllWords);
 
 $('#card-speak').addEventListener('click', (e) => {
   e.stopPropagation();
